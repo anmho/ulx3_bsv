@@ -13,6 +13,7 @@ typedef struct {
 } ExecInst deriving (Bits, Eq, FShow);
 
 
+
 // ALU
 ///////////////////////////////////////////////////////////////////////////
 
@@ -30,6 +31,7 @@ function Word alu(Word a, Word b, AluFunc func);
 		Sll:    (a << b[4:0]);
 		Srl:    (a >> b[4:0]);
 		Sra:    signedShiftRight(a, b[4:0]);
+        Mul:    (a * b);
 	endcase;
 	return res;
 endfunction

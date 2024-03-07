@@ -16,7 +16,7 @@ bool g_init_done = false;
 void init() {
 	if ( g_init_done ) return;
 	pthread_mutex_init(&g_mutex, NULL);
-	pthread_create(&g_thread, NULL, swmain, NULL);
+	pthread_create(&g_thread, NULL, (void* (*)(void*))swmain, NULL);
 
 	g_init_done = true;
 }

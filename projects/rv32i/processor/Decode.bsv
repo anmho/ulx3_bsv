@@ -71,6 +71,7 @@ function DecodedInst decode(Bit#(32) inst);
 	let src2    = inst[24:20];
 	let csr    = inst[31:20];
 
+
 	Word immI = signExtend(inst[31:20]);
 	Word immS = signExtend({ inst[31:25], inst[11:7] });
 	Word immB = signExtend({ inst[31], inst[7], inst[30:25], inst[11:8], 1'b0});
@@ -83,29 +84,29 @@ function DecodedInst decode(Bit#(32) inst);
 	dInst.writeDst = False;
 	dInst.src1 = 0;
 	dInst.src2 = 0;
+
 	case(opcode)
 		opOp: begin
 			if (funct7 == 7'b0000000) begin
 				case (funct3)
 					fnADD:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Add,  iType: OP, size: ?, extendSigned: ? };
-				fnSLT:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Slt,  iType: OP, size: ?, extendSigned: ? };
-				fnSLTU: dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Sltu, iType: OP, size: ?, extendSigned: ? };
-				fnXOR:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Xor,  iType: OP, size: ?, extendSigned: ? };
-				fnOR:   dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Or,   iType: OP, size: ?, extendSigned: ? };
-				fnAND:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: And,  iType: OP, size: ?, extendSigned: ? };
-				fnSLL:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Sll,  iType: OP, size: ?, extendSigned: ? };
-				fnSR:   dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Srl,  iType: OP, size: ?, extendSigned: ? };
+                    fnSLT:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Slt,  iType: OP, size: ?, extendSigned: ? };
+                    fnSLTU: dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Sltu, iType: OP, size: ?, extendSigned: ? };
+                    fnXOR:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Xor,  iType: OP, size: ?, extendSigned: ? };
+                    fnOR:   dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Or,   iType: OP, size: ?, extendSigned: ? };
+                    fnAND:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: And,  iType: OP, size: ?, extendSigned: ? };
+                    fnSLL:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Sll,  iType: OP, size: ?, extendSigned: ? };
+                    fnSR:   dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Srl,  iType: OP, size: ?, extendSigned: ? };
 				endcase
 			end else if (funct7 == 7'b0100000) begin
 				case (funct3)
 					fnADD:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Sub,  iType: OP, size: ?, extendSigned: ? };
 					fnSR:   dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Sra,  iType: OP, size: ?, extendSigned: ? };
 				endcase
-			end
-			else if (funct7 == 7'b0000001) begin
-				//case (funct3)
-				// case fnMUL: 
-				//endcase
+			end else if (funct7 == 7'b0000001) begin
+				case (funct3)
+                    fnMUL:  dInst = DecodedInst { dst: dst, writeDst: True, src1: src1, src2: src2, imm: ?, brFunc: ?, aluFunc: Mul,  iType: OP, size: ?, extendSigned: ? };
+				endcase
 			end
 		end
 		opOpImm: begin
@@ -159,6 +160,8 @@ function DecodedInst decode(Bit#(32) inst);
 				fnSB: dInst = DecodedInst { dst: 0, writeDst: False, src1: src1, src2: src2, imm: immS, brFunc: ?, aluFunc: ?, iType: STORE, size: 0, extendSigned: ? };
 			endcase
 		end
+
+
 
 		opAuipc: dInst = DecodedInst { dst: dst, writeDst: True, src1: 0,   src2: 0, imm: immU, brFunc: ?, aluFunc: ?, iType: AUIPC, size:?, extendSigned: ? };
 	endcase
