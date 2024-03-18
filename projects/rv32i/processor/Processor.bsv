@@ -2,12 +2,14 @@ import FIFO::*;
 import FIFOF::*;
 import SpecialFIFOs::*;
 
+
 import RFile::*;
 import Defines::*;
 import Decode::*;
 import Execute::*;
 
 import Scoreboard::*;
+import BranchPredictor::*;
 
 typedef struct {
 	Word pc;
@@ -51,6 +53,8 @@ endinterface
 module mkProcessor(ProcessorIfc);
 	Reg#(Word)  pc <- mkReg(0);
 	RFile2R1W   rf <- mkRFile2R1W;
+
+	BranchPredictorIfc branch_predictor <- mkBranchPredictor;
 
 	// Reg#(ProcStage) stage <- mkReg(Fetch);
 
