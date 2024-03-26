@@ -92,7 +92,8 @@ module mkProcessor(ProcessorIfc);
             epoch_fetch <= epoch;
         end
 
-        Word predicted_pc = curpc + 4;
+        // Word predicted_pc = curpc + 4;
+        Word predicted_pc = branch_predictor.getNextPc(curpc);
         pc <= predicted_pc;
 		imemReqQ.enq(MemReq32{write:False,addr:truncate(curpc),word:?,bytes:3});
 		f2d.enq(F2D {pc: curpc, predicted_pc:predicted_pc, epoch: epoch});
@@ -167,6 +168,7 @@ module mkProcessor(ProcessorIfc);
         
         if (x.epoch == epoch_execute) begin
             // pc <= eInst.nextPC;
+            
             execCnt <= execCnt + 1;
             $write( "[0x%8x:0x%04x] Executing\n", cycles, curpc);
             if (eInst.iType == Unsupported) begin
@@ -183,12 +185,21 @@ module mkProcessor(ProcessorIfc);
                 redirect_pcQ.enq(eInst.nextPC);
                 epoch_execute <= !epoch_execute;
             end
+
+            if (eInst.iType == BRANCH) begin 
+                // $write( "[0x%8x:0x%04x] \t\t Mem read from 0x%08x\n", cycles, curpc, eInst.addr );
+                branch_predictor.setPrediction(curpc, eInst.nextPC);
+                pc <= eInst.nextPC;
+            end
+
+            
             if (eInst.iType == LOAD) begin
                 dmemReqQ.enq(MemReq32{write:False,addr:truncate(eInst.addr), word:?, bytes:dInst.size});
                 e2m.enq(E2M{dst:eInst.dst,extendSigned:dInst.extendSigned,size:dInst.size, pc:curpc, data:0, isMem: True});
                 // stage <= Writeback;
                 $write( "[0x%8x:0x%04x] \t\t Mem read from 0x%08x\n", cycles, curpc, eInst.addr );
             end 
+            
             else if (eInst.iType == STORE) begin
                 dmemReqQ.enq(MemReq32{write:True,addr:truncate(eInst.addr), word:eInst.data, bytes:dInst.size});
                 $write( "[0x%8x:0x%04x] \t\t Mem write 0x%08x to 0x%08x\n", cycles, curpc, eInst.data, eInst.addr );
@@ -209,12 +220,6 @@ module mkProcessor(ProcessorIfc);
             e2m.enq(E2M{dst:0,extendSigned:?,size:?, pc:curpc, data:?, isMem: False});
         end
 	endrule
-
-
-
-
-
-
 
 	rule doWriteback;/*  (stage == Writeback); */
 		e2m.deq;
